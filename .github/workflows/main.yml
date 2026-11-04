@@ -7,9 +7,24 @@ on:
 
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cari file proyek
+        run: |
+          if [ ! -f package.json ]; then
+            DIR=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -n 1)")
+            if [ -n "$DIR" ] && [ "$DIR" != "." ] && [ -f "$DIR/package.json" ]; then
+              echo "Proyek ditemukan di $DIR"
+              cp -r "$DIR"/. .
+            fi
+          fi
+          if [ ! -f package.json ] || [ ! -d www ]; then
+            echo "::error::package.json atau folder www belum di-upload. Upload isi folder financial-freedom-app ke repository."
+            exit 1
+          fi
+          ls -la
 
       - uses: actions/setup-node@v4
         with:
