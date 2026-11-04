@@ -1,0 +1,7 @@
+{
+  "appId": "com.financialfreedom.app",
+  "appName": "Financial Freedom",
+  "webDir": "www",
+  "backgroundColor": "#1E2869",
+  "android": { "allowMixedContent": false }
+}
