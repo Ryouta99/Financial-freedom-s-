@@ -41,7 +41,7 @@ APK ini ditandatangani dengan kunci *debug*. Aman untuk dipakai sendiri, tapi be
 
 ## Memperbarui aplikasi
 
-Ganti file `www/index.html` di GitHub (**Add file → Upload files**), lalu commit. APK dan versi web akan dibangun ulang otomatis. Setelah itu, pasang APK baru di atas yang lama. Datanya tetap ada.
+Ganti file `www/index.html` di GitHub (**Add file → Upload files**), lalu commit. APK dan versi web akan dibangun ulang otomatis. Setelah itu, pasang APK baru di atas yang lama. Datanya tetap ada, karena setiap APK ditandatangani dengan kunci yang sama dari folder `keystore/`. Jangan hapus folder itu.
 
 ## Tentang data
 

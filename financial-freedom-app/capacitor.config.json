@@ -3,5 +3,15 @@
   "appName": "Financial Freedom",
   "webDir": "www",
   "backgroundColor": "#1E2869",
-  "android": { "allowMixedContent": false }
+  "android": {
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#F2F3F8"
+    }
+  }
 }
