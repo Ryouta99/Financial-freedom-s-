@@ -10,21 +10,34 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Cari file proyek
+      - name: Siapkan file proyek (bongkar ZIP kalau ada)
         shell: bash
         run: |
+          # Pakai ZIP financial-freedom-app*.zip yang paling baru di-upload, kalau ada.
+          ZIP=""; NEWEST=0
+          while IFS= read -r -d '' f; do
+            T=$(git log -1 --format=%ct -- "$f" 2>/dev/null || echo 0); T=${T:-0}
+            if [ "$T" -ge "$NEWEST" ]; then NEWEST=$T; ZIP="$f"; fi
+          done < <(find . -maxdepth 3 -iname 'financial-freedom-app*.zip' -not -path './.git/*' -print0)
+          if [ -n "$ZIP" ]; then
+            echo "Membongkar $ZIP"
+            rm -rf _zip && mkdir _zip && unzip -q -o "$ZIP" -d _zip
+            DIR=$(dirname "$(find _zip -name build.py | head -n 1)")
+            if [ -f "$DIR/build.py" ]; then cp -r "$DIR"/. .; echo "Proyek dari ZIP dipakai"; fi
+          fi
+          # Kalau tidak ada ZIP, cari proyek di dalam subfolder.
           if [ ! -f build.py ]; then
-            DIR=$(dirname "$(find . -name build.py -not -path '*/node_modules/*' | head -n 1)")
-            if [ -n "$DIR" ] && [ "$DIR" != "." ] && [ -f "$DIR/build.py" ]; then
-              echo "Proyek ditemukan di $DIR"
-              cp -r "$DIR"/. .
-            fi
+            DIR=$(dirname "$(find . -name build.py -not -path './.git/*' -not -path '*/node_modules/*' | head -n 1)")
+            if [ -n "$DIR" ] && [ "$DIR" != "." ] && [ -f "$DIR/build.py" ]; then cp -r "$DIR"/. .; echo "Proyek ditemukan di $DIR"; fi
           fi
           if [ ! -f build.py ] || [ ! -d src ]; then
-            echo "::error::build.py atau folder src belum di-upload. Upload isi folder financial-freedom-app ke repository."
+            echo "::error::Proyek belum lengkap. Upload file financial-freedom-app.zip terbaru ke repository."
             exit 1
           fi
+          grep -o '"version": *"[^"]*"' package.json
 
       - name: Gabungkan kode (build.py)
         run: python3 build.py
