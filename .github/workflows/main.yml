@@ -12,18 +12,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Cari file proyek
+        shell: bash
         run: |
-          if [ ! -f package.json ]; then
-            DIR=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -n 1)")
-            if [ -n "$DIR" ] && [ "$DIR" != "." ] && [ -f "$DIR/package.json" ]; then
+          if [ ! -f build.py ]; then
+            DIR=$(dirname "$(find . -name build.py -not -path '*/node_modules/*' | head -n 1)")
+            if [ -n "$DIR" ] && [ "$DIR" != "." ] && [ -f "$DIR/build.py" ]; then
               echo "Proyek ditemukan di $DIR"
               cp -r "$DIR"/. .
             fi
           fi
-          if [ ! -f package.json ] || [ ! -d www ]; then
-            echo "::error::package.json atau folder www belum di-upload. Upload isi folder financial-freedom-app ke repository."
+          if [ ! -f build.py ] || [ ! -d src ]; then
+            echo "::error::build.py atau folder src belum di-upload. Upload isi folder financial-freedom-app ke repository."
             exit 1
           fi
+
+      - name: Gabungkan kode (build.py)
+        run: python3 build.py
 
       - uses: actions/setup-node@v4
         with:
@@ -43,6 +47,7 @@ jobs:
           npx capacitor-assets generate --android || echo "Ikon bawaan dipakai"
           MANIFEST=android/app/src/main/AndroidManifest.xml
           grep -q 'android.permission.CAMERA' "$MANIFEST" || sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />#' "$MANIFEST"
+          grep -q 'WRITE_EXTERNAL_STORAGE' "$MANIFEST" || sed -i 's#<uses-permission android:name="android.permission.CAMERA" />#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />#' "$MANIFEST"
           npx cap sync android
 
       - name: Pakai kunci tanda tangan tetap
